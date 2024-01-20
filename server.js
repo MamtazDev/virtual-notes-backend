@@ -153,6 +153,9 @@ app.post("/api/validateToken", (req, res) => {
 app.get("/protected", authenticateUser, (req, res) => {
   res.json({ message: "You have access to this protected route!" });
 });
+app.get("/", (req, res) => {
+  res.send("Server is running.");
+});
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {
