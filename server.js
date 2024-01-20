@@ -23,12 +23,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // CORS Middleware
-const corsOptions = {
-  origin: "http://localhost:3000",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// const corsOptions = {
+//   origin: "http://localhost:3000",
+//   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//   credentials: true,
+// };
+// app.use(cors(corsOptions));
+app.use(cors());
 
 // Models
 const User = require("./models/User");
