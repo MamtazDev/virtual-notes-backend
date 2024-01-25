@@ -14,7 +14,8 @@ require("dotenv").config();
 
 // Configurations
 const connectDB = require("./config/db");
-connectDB();
+
+// connectDB();
 
 // Express Application Setup
 const app = express();
@@ -27,6 +28,7 @@ const corsOptions = {
   // origin: "http://localhost:3001",
   origin: [
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://virtual-notes-react-uz5y.vercel.app",
   ],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",

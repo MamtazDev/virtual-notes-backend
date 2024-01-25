@@ -123,7 +123,7 @@ router.post("/signup", async (req, res) => {
 
     const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
       expiresIn: "7d",
-    });
+    }); 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

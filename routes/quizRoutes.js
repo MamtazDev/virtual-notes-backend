@@ -90,9 +90,15 @@ const generateQuizQuestions = async (
       const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
       const result = await model.generateContent(prompt);
-      const response = await result.response;
+      const response = result.response;
       const text = response.text();
       const parsedQuestion = parseQuizQuestion(text);
+      console.log("Generated Text:", text)
+
+        if (parsedQuestion){
+          // console.log("parsedQuestion:", parsedQuestion)
+        }
+
 
       if (!parsedQuestion) {
         console.error(
@@ -102,6 +108,7 @@ const generateQuizQuestions = async (
       }
 
       allQuestions.push(parsedQuestion);
+      // allQuestions.push(text);
     } catch (error) {
       console.error("Error generating quiz question:", error);
       throw error;
@@ -128,15 +135,14 @@ const parseQuizQuestion = (text) => {
 
     if (matches) {
       const [
-        ,
         question,
         optionA,
         optionB,
         optionC,
         optionD,
-        ,
         correctOptionLetter,
       ] = matches;
+
       const options = [
         optionA.trim(),
         optionB.trim(),
