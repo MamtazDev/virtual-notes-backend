@@ -67,9 +67,14 @@ router.post("/create-subscription", authenticateUser, async (req, res) => {
 });
 
 // Cancel a subscription
-router.post("/api/cancel-subscription", authenticateUser, async (req, res) => {
+router.post("/cancel-subscription", authenticateUser, async (req, res) => {
+
+  const { userId } = req.body;
+  console.log("userId:", userId)
+  
   try {
-    const user = await User.findById(req.user.id);
+
+    const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -81,13 +86,22 @@ router.post("/api/cancel-subscription", authenticateUser, async (req, res) => {
     let endDate;
     let message = "";
 
+
+    // console.log("user.subscriptionStartDate:", user.subscriptionStartDate)
+
     if (user.planId === "free_trial") {
+      // const trialEnd = new Date(
+      //   user.subscriptionStartDate.getTime() + trialPeriod
+      // );
       const trialEnd = new Date(
-        user.subscriptionStartDate.getTime() + trialPeriod
-      );
+        new Date().getTime() + trialPeriod
+    );
+
+
       if (now < trialEnd) {
         user.isSubscriptionActive = false;
         user.subscriptionEndDate = trialEnd;
+        user.planId = "defaultPlanId";
         await user.save();
         message =
           "Trial cancellation scheduled. Access will be revoked after the trial period ends.";

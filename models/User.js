@@ -22,6 +22,7 @@ const UserSchema = new mongoose.Schema({
     },
   ],
   subscriptionStartDate: Date,
+  subscriptionEndDate: Date,
   isSubscriptionActive: { type: Boolean, default: true },
 });
 
