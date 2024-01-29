@@ -93,7 +93,7 @@ const generateQuizQuestions = async (
       const response = result.response;
       const text = response.text();
       const parsedQuestion = parseQuizQuestion(text);
-      console.log("Generated Text:", text)
+      // console.log("Generated Text:", text)
 
         if (parsedQuestion){
           // console.log("parsedQuestion:", parsedQuestion)
@@ -130,10 +130,15 @@ const parseQuizQuestion = (text) => {
 
     // Regex pattern to extract the question, options, and the correct answer
     const pattern =
-      /Question:\s*(.+?)\s*A\.\s*(.+?)\s*B\.\s*(.+?)\s*C\.\s*(.+?)\s*D\.\s*(.+?)\s*(Answer|Correct Answer):\s*([ABCD])\.\s*(.+)/;
+        /Question:\s*(.+?)\s*A\.\s*(.+?)\s*B\.\s*(.+?)\s*C\.\s*(.+?)\s*D\.\s*(.+?)\s*(Answer|Correct Answer):\s*([ABCD])\.\s*(.+)/i;
+
     const matches = uniformText.match(pattern);
 
-    if (matches) {
+
+    console.log("matches", matches)
+
+    if (uniformText) {
+    // if (matches) {
       const [
         question,
         optionA,
