@@ -261,8 +261,9 @@ router.post("/logout", authenticateUser, (req, res) => {
   res.json({ message: "Logged out successfully" });
 });
 
+
 // Profile update route
-router.put("/api/user/update", authenticateUser, async (req, res) => {
+router.put("/update", authenticateUser, async (req, res) => {
   const { email } = req.body;
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
