@@ -20,6 +20,10 @@ const MAX_TOKENS = 1000;
 module.exports = (app) => {
   const router = express.Router();
 
+  // OpenAI API
+const { OpenAI } = require("openai");
+const openai = new OpenAI(process.env.OPENAI_API_KEY);
+
   // Google API
   const { GoogleGenerativeAI } = require("@google/generative-ai");
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
@@ -197,7 +201,7 @@ module.exports = (app) => {
   }
 
   // Generate Sumamry
-  async function sendTranscriptionToGeminiAPI(transcription, audioDuration) {
+  async function sendTranscriptionToOpenAIAPI(transcription, audioDuration) {
     if (
       !transcription ||
       transcription.toLowerCase().includes("unintelligible") ||
@@ -216,25 +220,30 @@ module.exports = (app) => {
 
       promptText += `Here's what I need:\n`;
       promptText += `- A short and clear topic title.\n`;
-      promptText += `- The most important points discussed, formatted as 'Title: Explanation'.\n`;
-      promptText += `- A coherent summary that ties together the main points.\n\n`;
+      promptText += `- The most important points discussed, formatted as 'Title: Explanation'. Each point should start with a dash and be on a new line.\n`;
+      promptText += `- A coherent summary that ties together the main points, placed under the heading 'Summary:'.\n\n`;
 
       promptText += `The summary should be clear, concise, and reflect only the content covered in the lecture.\n`;
 
       try {
-        const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const completion = await openai.completions.create({
+          model: "gpt-3.5-turbo-instruct",
+          prompt: promptText,
+          max_tokens: 1000,
+          temperature: 0.3,
+        });
 
-        const result = await model.generateContent(promptText);
-        const response = await result.response;
-        const text = await response.text();
+        const text = completion.choices[0].text.trim();
 
-        console.log("Gemini API Response for segment:", text);
+        console.log("OpenAI GPT-3.5-turbo Response for segment:", text);
 
         let processedText = processAIText(text);
         summaries.push(processedText);
       } catch (error) {
-        console.error("Error generating summary for segment:", error);
+        console.error(
+          "Error generating summary for segment with OpenAI:",
+          error
+        );
         throw error;
       }
     }
@@ -363,7 +372,7 @@ module.exports = (app) => {
         .filter(Boolean)
         .join("\n");
 
-      const summary = await sendTranscriptionToGeminiAPI(
+      const summary = await sendTranscriptionToOpenAIAPI(
         combinedTranscription,
         audioDuration
       );
@@ -501,7 +510,7 @@ module.exports = (app) => {
   router.post("/generate-summary", async (req, res) => {
     try {
       const { transcription, audioDuration } = req.body;
-      const summary = await sendTranscriptionToGeminiAPI(
+      const summary = await sendTranscriptionToOpenAIAPI(
         transcription,
         audioDuration
       );

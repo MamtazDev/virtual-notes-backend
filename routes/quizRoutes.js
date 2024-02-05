@@ -5,6 +5,10 @@ const { authenticateUser } = require("../middleware/auth");
 const Quiz = require("../models/Quiz");
 const textract = require("textract");
 
+// OpenAI API
+const { OpenAI } = require("openai");
+const openai = new OpenAI(process.env.OPENAI_API_KEY);
+
 // Google API
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
@@ -80,37 +84,32 @@ const generateQuizQuestions = async (
   const allQuestions = [];
 
   for (let i = 0; i < questionCount; i++) {
-    const prompt = `
+    const promptText = `
       Based on the following content, create a '${difficulty}' level quiz question with four multiple-choice options labeled A, B, C, and D, and indicate the correct answer.
       Content: "${combinedText}"
     `;
 
     try {
-      const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const completion = await openai.completions.create({
+        model: "gpt-3.5-turbo-instruct",
+        prompt: promptText,
+        max_tokens: 1500,
+        temperature: 0.5,
+      });
 
-      const result = await model.generateContent(prompt);
-      const response = result.response;
-      const text = response.text();
+      const text = completion.choices[0].text.trim();
+      console.log("Generated Quiz Question:", text);
+
       const parsedQuestion = parseQuizQuestion(text);
-      // console.log("Generated Text:", text)
 
-        if (parsedQuestion){
-          // console.log("parsedQuestion:", parsedQuestion)
-        }
-
-
-      if (!parsedQuestion) {
-        console.error(
-          `Could not parse quiz question. Received text: "${text}"`
-        );
+      if (parsedQuestion) {
+        allQuestions.push(parsedQuestion);
+      } else {
+        console.error(`Unable to parse generated question: "${text}"`);
         continue;
       }
-
-      allQuestions.push(parsedQuestion);
-      // allQuestions.push(text);
     } catch (error) {
-      console.error("Error generating quiz question:", error);
+      console.error("Error generating quiz question with OpenAI:", error);
       throw error;
     }
   }

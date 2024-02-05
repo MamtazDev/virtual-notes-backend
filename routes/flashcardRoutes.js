@@ -15,6 +15,10 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // Example: 5MB limit
 });
 
+// OpenAI API
+const { OpenAI } = require("openai");
+const openai = new OpenAI(process.env.OPENAI_API_KEY);
+
 // Google API
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
@@ -373,7 +377,7 @@ function splitTextIntoSegments(text, maxChars) {
 }
 
 async function processSegment(segment) {
-  const prompt = `
+  const promptText = `
   Analyze the following educational text to identify key concepts and their explanations. For each important term, create a flashcard with the format:
   
   Term: [Key Term]
@@ -384,19 +388,20 @@ async function processSegment(segment) {
   `;
 
   try {
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const completion = await openai.completions.create({
+      model: "gpt-3.5-turbo-instruct",
+      prompt: promptText,
+      max_tokens: 1500,
+      temperature: 0.5,
+    });
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = await response.text();
-
-    console.log("Gemini API Response for segment:", text);
+    const text = completion.choices[0].text.trim();
+    console.log("Generated Flashcards:", text);
 
     const segmentFlashcards = parseFlashcards(text);
     return segmentFlashcards;
   } catch (error) {
-    console.error("Error generating flashcards for segment:", error);
+    console.error("Error generating flashcards with OpenAI:", error);
     throw error; // Re-throw the error for caller to handle
   }
 }
