@@ -171,8 +171,10 @@ router.delete("/flashcard-sets/:setId", authenticateUser, async (req, res) => {
         message: "Flashcard set not found or does not belong to the user",
       });
     }
+    console.log("flashcardSet", flashcardSet);
 
     await FlashcardSet.findByIdAndDelete(setId);
+
     res.status(200).json({ message: "Flashcard set deleted successfully" });
   } catch (error) {
     console.error("Error deleting flashcard set:", error);
