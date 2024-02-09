@@ -25,7 +25,6 @@ app.use(cookieParser());
 
 // CORS Middleware
 const corsOptions = {
-  // origin: "http://localhost:3001",
   origin: [
     "http://localhost:3000",
     "http://localhost:3001",
@@ -34,6 +33,7 @@ const corsOptions = {
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 // app.use(cors());
 
@@ -188,7 +188,7 @@ app.use((err, req, res, next) => {
 const start = async () => {
   try {
     await mongoose.connect(
-       "mongodb+srv://amarifields:F2HRZFjgDEJ3Zx4Q@virtunotes.kqftb1z.mongodb.net/?retryWrites=true&w=majority",
+      "mongodb+srv://amarifields:F2HRZFjgDEJ3Zx4Q@virtunotes.kqftb1z.mongodb.net/?retryWrites=true&w=majority",
       //"mongodb+srv://mamtazfreelancer:f7FcczeDomuZ5F3L@cluster0.6ds5s8q.mongodb.net/virtualNotes",
       {
         useNewUrlParser: true,

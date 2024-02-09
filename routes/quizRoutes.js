@@ -17,7 +17,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 // Multer setup for handling file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // Limiting file size (example: 5MB)
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 const MIN_TEXT_LENGTH = 100;
@@ -25,9 +25,8 @@ const MIN_TEXT_LENGTH = 100;
 // Submit quiz answers
 router.post("/submit", authenticateUser, async (req, res) => {
   try {
-    const { quizId, answers } = req.body; // quizId identifies the quiz, answers is an array of user answers
+    const { quizId, answers } = req.body;
 
-    // Validate answers and calculate score
     const result = await validateQuizAnswers(quizId, answers);
 
     res.status(200).json({ result });
@@ -43,7 +42,6 @@ router.post("/submit", authenticateUser, async (req, res) => {
 router.get("/results/:quizId", authenticateUser, async (req, res) => {
   const { quizId } = req.params;
   try {
-    // Assuming you store quiz results, retrieve them here
     const results = await Quiz.findById(quizId).select("results");
 
     res.status(200).json({ results });
@@ -57,7 +55,6 @@ router.get("/results/:quizId", authenticateUser, async (req, res) => {
 });
 
 // Extract from files
-
 const extractTextFromFiles = async (files) => {
   const textPromises = files.map(
     (file) =>
@@ -119,25 +116,20 @@ const generateQuizQuestions = async (
 
 const parseQuizQuestion = (text) => {
   try {
-    // Remove HTML tags and markdown formatting
     const cleanText = text.replace(/<\/?[^>]+>|(\*\*|\*|_)/g, "").trim();
 
-    // Normalize spaces and handle different line breaks
     const uniformText = cleanText
       .replace(/\r?\n|\r/g, " ")
       .replace(/\s+/g, " ");
 
-    // Regex pattern to extract the question, options, and the correct answer
     const pattern =
-        /Question:\s*(.+?)\s*A\.\s*(.+?)\s*B\.\s*(.+?)\s*C\.\s*(.+?)\s*D\.\s*(.+?)\s*(Answer|Correct Answer):\s*([ABCD])\.\s*(.+)/i;
+      /Question:\s*(.+?)\s*A\.\s*(.+?)\s*B\.\s*(.+?)\s*C\.\s*(.+?)\s*D\.\s*(.+?)\s*(Answer|Correct Answer):\s*([ABCD])\.\s*(.+)/i;
 
     const matches = uniformText.match(pattern);
 
-
-    console.log("matches", matches)
+    console.log("matches", matches);
 
     if (uniformText) {
-    // if (matches) {
       const [
         question,
         optionA,
@@ -211,7 +203,6 @@ router.post(
         })
         .filter((q) => q != null);
 
-      // Respond with the parsed questions and any errors
       res.json({
         questions: quizQuestions.filter((q) => q != null),
         failedQuestions,

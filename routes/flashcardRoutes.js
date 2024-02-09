@@ -12,7 +12,7 @@ const { authenticateUser } = require("../middleware/auth");
 // Define the storage and file size limit for uploads
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // Example: 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
 // OpenAI API
@@ -66,8 +66,8 @@ router.post("/save-flashcards", authenticateUser, async (req, res) => {
 
     res.status(201).json({
       message: "Flashcard set saved successfully",
-      setId: newFlashcardSet._id, // The ID of the new flashcard set
-      flashcards: newFlashcardSet.flashcards, // The flashcards of the new set
+      setId: newFlashcardSet._id,
+      flashcards: newFlashcardSet.flashcards,
     });
   } catch (error) {
     console.error("Error saving flashcard set:", error);
@@ -97,7 +97,6 @@ router.get("/sets/:setId", authenticateUser, async (req, res) => {
     if (!flashcardSet) {
       return res.status(404).json({ message: "Flashcard set not found" });
     }
-    res.status(200).json(flashcardSet);
   } catch (error) {
     console.error("Error retrieving flashcard set:", error);
     res.status(500).json({
@@ -138,10 +137,9 @@ router.put("/sets/:setId", authenticateUser, async (req, res) => {
 // Update flashcard set
 router.put("/flashcard-sets/:setId", authenticateUser, async (req, res) => {
   const { setId } = req.params;
-  const { flashcards } = req.body; // This would be an array of flashcards
+  const { flashcards } = req.body;
 
   try {
-    // Find the flashcard set and update it with the new array of flashcards
     const flashcardSet = await FlashcardSet.findByIdAndUpdate(
       setId,
       {
@@ -275,23 +273,19 @@ router.put(
     const { term, definition } = req.body;
 
     try {
-      // Find the parent flashcard set
       const flashcardSet = await FlashcardSet.findById(setId);
       if (!flashcardSet) {
         return res.status(404).json({ message: "Flashcard set not found" });
       }
 
-      // Find the flashcard within the set
       const flashcard = flashcardSet.flashcards.id(flashcardId);
       if (!flashcard) {
         return res.status(404).json({ message: "Flashcard not found" });
       }
 
-      // Update the flashcard fields
       flashcard.term = term;
       flashcard.definition = definition;
 
-      // Save the flashcard set with the updated flashcard
       await flashcardSet.save();
 
       res.json({ message: "Flashcard updated", flashcard });
@@ -350,7 +344,6 @@ async function generateFlashcardsFromText(text) {
       allFlashcards = allFlashcards.concat(segmentFlashcards);
     } catch (error) {
       console.error(`Error processing segment: ${error}`);
-      // Handle segment processing error
     }
   }
 
@@ -362,7 +355,7 @@ function splitTextIntoSegments(text, maxChars) {
   while (text.length > 0) {
     let segment = text.substring(0, maxChars);
     let nextIndex = maxChars;
-    // Optional: split at the end of a sentence
+
     if (text.length > maxChars) {
       let lastPeriod = segment.lastIndexOf(".");
       if (lastPeriod > -1) {
@@ -402,7 +395,7 @@ async function processSegment(segment) {
     return segmentFlashcards;
   } catch (error) {
     console.error("Error generating flashcards with OpenAI:", error);
-    throw error; // Re-throw the error for caller to handle
+    throw error;
   }
 }
 

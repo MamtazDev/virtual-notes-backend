@@ -7,12 +7,12 @@ const os = require("os");
 const fs = require("fs");
 const http = require("http");
 const WebSocket = require("ws");
-const { exec } = require("child_process"); // Import exec
-const { Storage } = require("@google-cloud/storage"); // Import Google Cloud Storage
-const speech = require("@google-cloud/speech"); // Import Google Cloud Speech-to-Text
+const { exec } = require("child_process");
+const { Storage } = require("@google-cloud/storage");
+const speech = require("@google-cloud/speech");
 const Summary = require("../models/Summary");
-const User = require("../models/User"); // Assuming you have a User model
-const Audio = require("../models/Audio"); // Assuming you have an Audio model
+const User = require("../models/User");
+const Audio = require("../models/Audio");
 const { authenticateUser } = require("../middleware/auth");
 
 const MAX_TOKENS = 1000;
@@ -21,8 +21,8 @@ module.exports = (app) => {
   const router = express.Router();
 
   // OpenAI API
-const { OpenAI } = require("openai");
-const openai = new OpenAI(process.env.OPENAI_API_KEY);
+  const { OpenAI } = require("openai");
+  const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
   // Google API
   const { GoogleGenerativeAI } = require("@google/generative-ai");
@@ -259,19 +259,15 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
     sections.forEach((section) => {
       if (section.startsWith("**Key Points:**")) {
-        // Skip this section as we don't want to include it
       } else if (section.startsWith("**Title:**")) {
-        // Combine title and explanation in one line
         const title = section.replace("**Title:**", "").trim();
         keyPointsSection.push(title);
       } else if (section.startsWith("**Explanation:**")) {
         const explanation = section.replace("**Explanation:**", "").trim();
         keyPointsSection[keyPointsSection.length - 1] += `: ${explanation}`;
       } else if (section.startsWith("**Summary:**")) {
-        // Set the summary text, ensuring we remove the '**Summary:**' label
         detailedSummary = section.replace("**Summary:**", "").trim();
       } else if (!topicHeading && section.trim()) {
-        // Extract the topic heading, stripping any unwanted prefixes
         topicHeading = section
           .replace(/^(Topic Title:|Primary Topic:|Topic Heading:)\s*/, "")
           .trim();
@@ -279,7 +275,7 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
     });
 
     let keyPointsString = keyPointsSection.join("\n\n");
-    // Ensure we have a non-empty summary before adding it to the full summary
+
     let fullSummary = `${topicHeading}\n\n${keyPointsString}`;
     if (detailedSummary.length > 0) {
       fullSummary += `\n\n${detailedSummary}`;
@@ -469,7 +465,7 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
           points,
         },
         { new: true }
-      ); // Return the updated document
+      );
 
       if (!summary) {
         return res.status(404).json({ message: "Summary not found" });
@@ -546,8 +542,6 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
     return chunks;
   }
-
-  // Export the router
 
   return router;
 };
